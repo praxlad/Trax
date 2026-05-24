@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trax - High-Precision Time Ledger</title>
+  
+  <!-- PWA Support -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0C0F17">
+  <link rel="icon" type="image/png" href="icon-512.png">
+  <link rel="apple-touch-icon" href="icon-512.png">
+
+  <!-- Premium Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header glass-card">
+      <div class="header-logo" title="Accent color reflects the current time of day">
+        <div class="logo-icon-container">
+          <!-- 3 Hand Dial Minimal Vector Clock Logo -->
+          <svg id="logo-clock-svg" viewBox="0 0 100 100" class="logo-clock">
+            <circle cx="50" cy="50" r="45" class="clock-face" />
+            <!-- Dials -->
+            <line x1="50" y1="50" x2="50" y2="22" id="logo-hour-hand" class="clock-hand hour-hand" />
+            <line x1="50" y1="50" x2="50" y2="14" id="logo-min-hand" class="clock-hand min-hand" />
+            <line x1="50" y1="50" x2="50" y2="10" id="logo-sec-hand" class="clock-hand sec-hand" />
+            <circle cx="50" cy="50" r="3" class="clock-center" />
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h1>Trax</h1>
+          <span class="logo-tagline">Precision Ledger</span>
+        </div>
+      </div>
+      
+      <div class="header-center-info">
+        <div class="live-clock-container">
+          <span id="current-date-display" class="date-text">24 May 2026</span>
+          <span id="current-time-display" class="time-text font-mono">15:22:17</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Theme Toggle Switch -->
+        <button id="theme-toggle-btn" class="icon-btn" title="Toggle Light/Dark Theme">
+          <i data-lucide="sun" id="theme-icon"></i>
+        </button>
+
+        <div class="ledger-completeness-meter glass-pill" title="Percentage of the day accounted for">
+          <span class="meter-label">Day Logged</span>
+          <span id="completion-percentage" class="meter-value font-mono">0.0%</span>
+        </div>
+        <button id="date-prev-btn" class="icon-btn" title="Previous Day"><i data-lucide="chevron-left"></i></button>
+        <div class="date-picker-wrapper">
+          <input type="date" id="date-picker" class="cyber-input font-mono">
+        </div>
+        <button id="date-next-btn" class="icon-btn" title="Next Day"><i data-lucide="chevron-right"></i></button>
+        <button id="install-pwa-btn" class="btn btn-secondary btn-icon-only hidden" title="Install App"><i data-lucide="download"></i></button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <!-- Main Dashboard (Left / Center) -->
+      <section class="dashboard-primary">
+        
+        <!-- ==========================================================
+             LANDING PAGE: EXECUTIVE VISUAL ANALYTICS (FIRST)
+             ========================================================== -->
+        <div class="landing-analytics-card glass-card hidden">
+          <div class="analytics-header">
+            <div class="analytics-title">
+              <h2>Performance & Trends</h2>
+              <span class="grid-subtitle">Real-time time auditing and multi-day comparison</span>
+            </div>
+          </div>
+          
+          <div class="analytics-landing-grid">
+            <!-- 1. Day Completeness circular dial -->
+            <div class="landing-completeness-gauge">
+              <div class="completeness-circle-wrapper">
+                <svg width="100" height="100" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" class="gauge-bg" />
+                  <circle cx="50" cy="50" r="42" id="landing-completeness-ring" class="gauge-fill" />
+                </svg>
+                <div class="gauge-inner-text">
+                  <span id="landing-gauge-val" class="font-mono">0%</span>
+                  <span class="gauge-lbl">Logged</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Detailed 7-Day comparative barcode ribbons stack -->
+            <div class="landing-trends-ribbons">
+              <div class="trends-header font-mono">7-Day Barcode Comparisons</div>
+              <div class="trends-ribbons-stack" id="trends-ribbons-stack-container">
+                <!-- Dynamically populated 7 barcode ribbons -->
+              </div>
+            </div>
+            
+            <!-- 3. Category distribution bars -->
+            <div class="landing-category-breakdown">
+              <div class="breakdown-header">Activity Distribution</div>
+              <div class="breakdown-bars-stack" id="landing-category-bars">
+                <!-- Dynamically populated category distribution stack -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Command Center -->
+        <div class="live-tracker-card glass-card relative overflow-hidden">
+          <div class="tracker-header">
+            <span class="status-indicator">
+              <span class="status-dot"></span>
+              <span id="tracker-status-text">Ready to Record</span>
+            </span>
+            <div class="active-category-indicator" id="active-category-badge">
+              <span class="badge-dot"></span>
+              <span class="badge-text">Unallocated</span>
+            </div>
+          </div>
+          
+          <div class="tracker-timer-display font-mono" id="live-timer-display">
+            00:00:00
+          </div>
+
+          <!-- Quick presets selections -->
+          <div class="tracker-controls">
+            <div class="category-presets-grid" id="category-presets-list">
+              <!-- Dynamically populated categories -->
+            </div>
+            
+            <div class="live-timer-actions">
+              <!-- Segment selector and speech field -->
+              <div class="segment-input-group">
+                <div class="form-group flex-1">
+                  <label>Custom Segment / Project</label>
+                  <div class="notes-input-wrapper">
+                    <input type="text" id="live-segment-input" placeholder="e.g. Project Alpha, Core Dev..." class="cyber-input" list="custom-segments-datalist">
+                  </div>
+                </div>
+                <div class="form-group flex-1">
+                  <label>Active Session Notes</label>
+                  <div class="notes-input-wrapper">
+                    <input type="text" id="live-notes-input" placeholder="Session details..." class="cyber-input">
+                    <button id="live-mic-btn" class="mic-btn" title="Dictate notes (Speech-to-Text)"><i data-lucide="mic"></i></button>
+                  </div>
+                </div>
+              </div>
+              <div class="suggestion-chips-container" id="live-suggestion-chips">
+                <!-- Dynamic suggestion chips -->
+              </div>
+              
+              <div class="button-group mt-1">
+                <button id="timer-toggle-btn" class="btn btn-primary">
+                  <i data-lucide="play" class="btn-icon"></i> <span id="timer-btn-text">Start Tracker</span>
+                </button>
+                <button id="timer-stop-btn" class="btn btn-danger" disabled>
+                  <i data-lucide="square" class="btn-icon"></i> Stop
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1,440 Minute Grid Container -->
+        <div class="grid-card glass-card">
+          <div class="grid-header">
+            <div class="grid-title">
+              <h2>The 1,440 Ledger</h2>
+              <span class="grid-subtitle">Click and drag cells to log retroactively. Hover for details.</span>
+            </div>
+            <div class="grid-legend" id="grid-legend-container">
+              <!-- Dynamic Category Legend -->
+            </div>
+          </div>
+          
+          <!-- The Scrollable Grid Table/Canvas -->
+          <div class="ledger-grid-scroll-container">
+            <div class="ledger-grid-wrapper" id="ledger-grid">
+              <!-- 24 Hour Rows dynamically inserted, each with 60 minute cells -->
+            </div>
+          </div>
+          
+          <div class="grid-footer">
+            <div class="grid-quick-stats">
+              <span>Gaps: <strong id="stats-total-gaps">1440 mins</strong></span>
+              <span>Logged: <strong id="stats-total-logged">0 mins</strong></span>
+            </div>
+            <button id="clear-day-btn" class="btn btn-danger btn-sm" title="Clear all logs for today">
+              <i data-lucide="trash-2" class="btn-icon"></i> Clear Ledger
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sidebar Controls & Plugins (Right) -->
+      <aside class="dashboard-sidebar">
+        <!-- Sidebar Navigation Tabs -->
+        <nav class="sidebar-tabs glass-card">
+          <button class="tab-link active" data-tab="tab-plugins"><i data-lucide="blocks"></i> Modules</button>
+          <button class="tab-link" data-tab="tab-gap-auditor"><i data-lucide="alert-circle"></i> Gaps</button>
+          <button class="tab-link" data-tab="tab-pomodoro"><i data-lucide="timer"></i> Pomodoro</button>
+          <button class="tab-link" data-tab="tab-analytics"><i data-lucide="bar-chart-2"></i> Stats</button>
+          <button class="tab-link" data-tab="tab-settings"><i data-lucide="settings"></i> System</button>
+        </nav>
+
+        <!-- Sidebar Tab Panels -->
+        <div class="sidebar-panels-container">
+          
+          <!-- Tab: Modules Registry -->
+          <div class="tab-panel glass-card active" id="tab-plugins">
+            <div class="panel-header">
+              <h2>Module Center</h2>
+              <p>Toggle modular workspace plugins</p>
+            </div>
+            <div class="panel-content">
+              <div class="plugins-list-container" id="plugins-toggle-list">
+                <!-- Dynamically generated list of plugins -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab: Gap Auditor -->
+          <div class="tab-panel glass-card" id="tab-gap-auditor">
+            <div class="panel-header">
+              <h2>Gap Auditor</h2>
+              <p>Resolve unallocated minutes retroactively</p>
+            </div>
+            <div class="panel-content" id="plugin-gap-auditor-root">
+              <div class="plugin-placeholder">
+                <i data-lucide="blocks" class="placeholder-icon"></i>
+                <p>Enable the Gap Auditor module to quickly clean unallocated gaps.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab: Pomodoro -->
+          <div class="tab-panel glass-card" id="tab-pomodoro">
+            <div class="panel-header">
+              <h2>Pomodoro Focus</h2>
+              <p>Maintain focus with customizable intervals</p>
+            </div>
+            <div class="panel-content" id="plugin-pomodoro-root">
+              <div class="plugin-placeholder">
+                <i data-lucide="blocks" class="placeholder-icon"></i>
+                <p>Enable the Pomodoro module to add focused timers with break structures.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab: Analytics (Sidebar panel - full breakdowns) -->
+          <div class="tab-panel glass-card" id="tab-analytics">
+            <div class="panel-header">
+              <h2>Visual Analytics</h2>
+              <p>Analyze category and custom project segment allocations</p>
+            </div>
+            <div class="panel-content" id="plugin-analytics-root">
+              <div class="plugin-placeholder">
+                <i data-lucide="blocks" class="placeholder-icon"></i>
+                <p>Enable the Analytics module to visualize performance metrics.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab: System Settings -->
+          <div class="tab-panel glass-card" id="tab-settings">
+            <div class="panel-header">
+              <h2>System Settings</h2>
+              <p>Configure precision rules, categories, segments, sound beep frequencies and volumes</p>
+            </div>
+            <div class="panel-content">
+              
+              <!-- Section: Time Zone & Formats Config -->
+              <div class="settings-section">
+                <h3><i data-lucide="globe"></i> Time Zone & Clock Formats</h3>
+                <p class="settings-help">Select your local ledger timezone alignment and 12-hour/24-hour presentation style.</p>
+                <div class="form-group">
+                  <label>Ledger Time Zone</label>
+                  <select id="settings-timezone" class="cyber-input" style="width: 100%">
+                    <option value="local">Local Browser Time</option>
+                    <option value="UTC">UTC (Coordinated Universal Time)</option>
+                    <option value="America/New_York">America/New York (EST/EDT)</option>
+                    <option value="Europe/London">Europe/London (GMT/BST)</option>
+                    <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
+                    <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
+                    <option value="Australia/Sydney">Australia/Sydney (AEST/AEDT)</option>
+                  </select>
+                </div>
+                <div class="form-group mt-1">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="settings-time-format">
+                    <span class="slider"></span>
+                    <span class="toggle-label font-xs">Use 24-Hour Time Format</span>
+                  </label>
+                </div>
+              </div>
+              
+              <!-- Section: Categories Config -->
+              <div class="settings-section">
+                <h3><i data-lucide="tags"></i> Custom Log Categories</h3>
+                <div class="categories-config-list" id="settings-categories-list">
+                  <!-- Dynamically populated list of categories -->
+                </div>
+                <button id="add-category-btn" class="btn btn-secondary btn-sm mt-1">
+                  <i data-lucide="plus" class="btn-icon"></i> Add Category
+                </button>
+              </div>
+
+              <!-- Section: Segments Config -->
+              <div class="settings-section">
+                <h3><i data-lucide="folder"></i> Custom Segments / Projects</h3>
+                <p class="settings-help">Define dynamic segment names that populate your pickable dropdown chips.</p>
+                <div class="categories-config-list" id="settings-segments-list">
+                  <!-- Dynamically populated list of segments/projects -->
+                </div>
+                <div class="flex gap-1 mt-1">
+                  <input type="text" id="new-segment-input" placeholder="New segment name..." class="cyber-input flex-1">
+                  <button id="add-segment-btn" class="btn btn-secondary btn-sm"><i data-lucide="plus"></i> Add</button>
+                </div>
+              </div>
+
+              <!-- Section: Audio Beeper Config -->
+              <div class="settings-section">
+                <h3><i data-lucide="volume-2"></i> Mindfulness Sound Synthesizer</h3>
+                
+                <div class="form-group">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="settings-enable-audio" checked>
+                    <span class="slider"></span>
+                    <span class="toggle-label">Enable Audio Feedback</span>
+                  </label>
+                </div>
+
+                <div class="form-group">
+                  <label>Master Volume (<span id="volume-val">20%</span>)</label>
+                  <input type="range" id="settings-volume" min="0" max="1" step="0.05" value="0.2" class="cyber-slider">
+                </div>
+
+                <!-- Hourly Chime Config -->
+                <div class="sound-subgroup glass-pill">
+                  <div class="sound-subgroup-header">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="settings-enable-hour" checked>
+                      <span class="slider"></span>
+                      <span class="toggle-label">Hourly Chime</span>
+                    </label>
+                    <button id="test-hour-sound" class="btn btn-secondary btn-xs"><i data-lucide="play"></i> Test</button>
+                  </div>
+                  
+                  <div class="subgroup-controls">
+                    <div class="control-row">
+                      <label>Frequency (Hz)</label>
+                      <input type="number" id="settings-hour-freq" min="100" max="2000" value="523" class="cyber-input font-mono">
+                    </div>
+                    <div class="control-row">
+                      <label>Duration (s)</label>
+                      <input type="number" id="settings-hour-dur" min="0.1" max="3" step="0.1" value="0.8" class="cyber-input font-mono">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 10-Minute Bip Config -->
+                <div class="sound-subgroup glass-pill">
+                  <div class="sound-subgroup-header">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="settings-enable-10min" checked>
+                      <span class="slider"></span>
+                      <span class="toggle-label">10-Min Bip</span>
+                    </label>
+                    <button id="test-10min-sound" class="btn btn-secondary btn-xs"><i data-lucide="play"></i> Test</button>
+                  </div>
+
+                  <div class="subgroup-controls">
+                    <div class="control-row">
+                      <label>Frequency (Hz)</label>
+                      <input type="number" id="settings-10min-freq" min="100" max="2000" value="880" class="cyber-input font-mono">
+                    </div>
+                    <div class="control-row">
+                      <label>Duration (s)</label>
+                      <input type="number" id="settings-10min-dur" min="0.05" max="1" step="0.05" value="0.15" class="cyber-input font-mono">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section: Data Import/Export -->
+              <div class="settings-section">
+                <h3><i data-lucide="database"></i> Data Backup & Safety</h3>
+                <p class="settings-help">Export your exact timeline grids to standard files or synchronize backups.</p>
+                <div class="button-group flex-wrap">
+                  <button id="export-json-btn" class="btn btn-primary btn-sm">
+                    <i data-lucide="upload"></i> Export JSON
+                  </button>
+                  <label for="import-json-file" class="btn btn-secondary btn-sm pointer">
+                    <i data-lucide="download"></i> Import JSON
+                  </label>
+                  <input type="file" id="import-json-file" class="hidden" accept=".json">
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </aside>
+    </main>
+
+    <!-- Overlay Dialog for retroactive logs -->
+    <div class="modal-backdrop hidden" id="log-modal">
+      <div class="modal-card glass-card">
+        <div class="modal-header">
+          <h2>Log Selected Time Range</h2>
+          <button id="close-modal-btn" class="close-btn"><i data-lucide="x"></i></button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="time-range-summary">
+            Selected: <span id="modal-time-range-text" class="font-mono">09:00 AM - 09:15 AM</span>
+            (<span id="modal-duration-text" class="font-mono">15 minutes</span>)
+          </div>
+          
+          <div class="form-group">
+            <label>Select Category</label>
+            <div class="modal-categories-grid" id="modal-category-select-list">
+              <!-- Dynamically populated buttons -->
+            </div>
+          </div>
+          
+          <div class="segment-input-group mt-1">
+            <div class="form-group flex-1">
+              <label>Custom Segment / Project</label>
+              <input type="text" id="modal-segment-input" placeholder="e.g. Project Alpha..." class="cyber-input" list="custom-segments-datalist">
+            </div>
+            <div class="form-group flex-1">
+              <label for="modal-notes-input">Session Details / Notes</label>
+              <div class="notes-input-wrapper">
+                <input type="text" id="modal-notes-input" placeholder="What did you do?" class="cyber-input">
+                <button id="modal-mic-btn" class="mic-btn" title="Dictate notes (Speech-to-Text)"><i data-lucide="mic"></i></button>
+              </div>
+            </div>
+          </div>
+          <div class="suggestion-chips-container" id="modal-suggestion-chips">
+            <!-- Dynamic suggestion chips -->
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button id="modal-delete-btn" class="btn btn-danger">Clear Selection</button>
+          <div class="right-buttons">
+            <button id="modal-cancel-btn" class="btn btn-secondary">Cancel</button>
+            <button id="modal-save-btn" class="btn btn-primary">Save Entry</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Datalist for segments autocomplete suggestions -->
+    <datalist id="custom-segments-datalist"></datalist>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+  </div>
+
+  <!-- System and Plugins Initialization -->
+  <script src="beeper.js" type="module"></script>
+  <script src="app.js" type="module"></script>
+</body>
+</html>
